@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Scheduler</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        *{
+            color: bisque;
+        }
+        body{
+            font-family:sans-serif,Arial;
+            background: linear-gradient(70deg,  rgb(235, 74, 74), rgb(6, 20, 9));
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center">Task Scheduler</h2>
+        <form id="taskForm">
+            <div class="form-group">
+                <label for="taskName">Task Name</label>
+                <input type="text" class="form-control" id="taskName" placeholder="Enter Task Name" required>
+            </div>
+            <div class="form-group">
+                <label for="taskDate">Deadline</label>
+                <input type="date" class="form-control" id="taskDate" required>
+            </div>
+            <div class="form-group">
+                <label for="taskTime">Duration</label>
+                <input type="time" class="form-control" id="taskTime" required>
+            </div>
+            <div class="form-group">
+                <label for="emailAddress">Email Address</label>
+                <input type="email" class="form-control" id="emailAddress" placeholder="Enter Email Address" required>
+            </div>
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="sendNotification">
+                <label class="form-check-label" for="sendNotification">Send Notification</label>
+            </div>
+            <button type="button" class="btn btn-secondary mt-3" onclick="addTask()">Add Task</button>
+        </form>
+        <table class="table mt-5" id="detail-table" border=5 cellpadding=3px>
+            <thead>
+                <tr>
+                    <th>Task Name</th>
+                    <th>Deadline</th>
+                    <th>Duration</th>
+                    <th>Email Address</th>
+                    <th>Send Notification</th>
+                </tr>
+            </thead>
+            <tbody id="taskList">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const addedTasks = [];
+
+        function isTaskAlreadyAdded(taskName, date, time, email) {
+            for (const task of addedTasks) {
+                if (task.taskName === taskName && task.date === date && task.time === time && task.email === email) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function addTask() {
+            const taskName = document.getElementById('taskName').value;
+            const taskDate = document.getElementById('taskDate').value;
+            const taskTime = document.getElementById('taskTime').value;
+            const emailAddress = document.getElementById('emailAddress').value;
+            const sendNotification = document.getElementById('sendNotification').checked;
+
+            // Check if Task Name, Date, and Email are filled out
+            if (taskName === "" || taskDate === "" || emailAddress === "") {
+                alert('Please fill out Task Name,deadline, and Email before adding the task.');
+                return;
+            }
+
+            if (isTaskAlreadyAdded(taskName, taskDate, taskTime, emailAddress)) {
+                alert('Task with the same name, deadline, time, and email already exists.');
+                return;
+            }
+
+            const taskList = document.getElementById('taskList');
+
+            const newRow = taskList.insertRow(taskList.rows.length);
+            const cell1 = newRow.insertCell(0);
+            const cell2 = newRow.insertCell(1);
+            const cell3 = newRow.insertCell(2);
+            const cell4 = newRow.insertCell(3);
+            const cell5 = newRow.insertCell(4);
+
+            cell1.innerHTML = taskName;
+            cell2.innerHTML = taskDate;
+            cell3.innerHTML = taskTime;
+            cell4.innerHTML = emailAddress;
+            cell5.innerHTML = sendNotification ? "Yes" : "No";
+
+            addedTasks.push({ taskName, date: taskDate, time: taskTime, email: emailAddress });
+
+            alert('Task fields have been set successfully.');
+
+            // Clear input fields after adding the task
+            document.getElementById('taskName').value = '';
+            document.getElementById('taskDate').value = '';
+            document.getElementById('taskTime').value = '';
+            document.getElementById('emailAddress').value = '';
+            document.getElementById('sendNotification').checked = false;
+
+            if (sendNotification) {
+                scheduleTaskNotification(taskName, taskDate, taskTime, emailAddress);
+            }
+        }
+
+        function scheduleTaskNotification(taskName, taskDate, taskTime, emailAddress) {
+            const scheduledTime = new Date(`${taskDate}T${taskTime}`);
+            const currentTime = new Date();
+
+            if (scheduledTime <= currentTime) {
+                alert(`Scheduled Task: ${taskName}\nDate: ${taskDate}\nTime: ${taskTime}\nEmail: ${emailAddress}`);
+            } else {
+                const timeDifference = scheduledTime - currentTime;
+                setTimeout(() => {
+                    alert(`Scheduled Task: ${taskName}\nDate: ${taskDate}\nTime: ${taskTime}\nEmail: ${emailAddress}`);
+                }, timeDifference);
+            }
+        }
+
+        function checkScheduledTasks() {
+            const currentTime = new Date();
+
+            addedTasks.forEach(task => {
+                const scheduledTime = new Date(`${task.date}T${task.time}`);
+                if (scheduledTime <= currentTime) {
+                    alert(`Scheduled Task: ${task.taskName}\nDate: ${task.date}\nTime: ${task.time}\nEmail: ${task.email}`);
+                }
+            });
+        }
+
+       
+    </script>
+</body>
+</html>
